@@ -19,7 +19,7 @@ def write_file(filename: str, data: (bytes, bytearray)) -> None:
 
 def main() -> None:
 	parser = ArgumentParser(description="A script to migrate saves from GBA to Wii U VC")
-	parser.add_argument("command", type=str, help="The command you want to use")
+	parser.add_argument("command", type=str, choices=["extract", "inject"], help="The command you want to use")
 	parser.add_argument("ifile", type=str, help="The Wii U VC save file")
 	# inject only command
 	parser.add_argument("-s", "--save", type=str, help="The save file to inject")
