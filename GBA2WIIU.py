@@ -27,7 +27,7 @@ def main() -> None:
 	args = parser.parse_args()
 
 	args.command = args.command.lower()
-	assert isfile(args.fw), "The input Wii U save file doesn't exist!"
+	assert isfile(args.ifile), "The input Wii U save file doesn't exist!"
 	if args.command == "inject":
 		assert args.save, "-s or --save is required for the inject command!"
 		assert isfile(args.save), "The save to be injected doesn't exist!"
@@ -49,22 +49,20 @@ def main() -> None:
 
 		# find the save size
 		bio.seek(12, 1)
-		# I'm just assuming this is the size, I could be wrong
+		# I'm just assuming this is the size, I could be wrong...
 		(save_size,) = unpack("<I", bio.read(4))
-		# seek back to the beginning of the save magic
+		# seek back to the beginning of the save descriptor
 		bio.seek(-0x10, 1)
 		# seek to after the save descriptor
 		bio.seek(0x80, 1)
-		# grab the save data
-		save_data = bio.read(save_size)
 		if args.command == "extract":
-			print(f"Extracting save @ {hex(bio.tell() - save_size)}, size {hex(save_size)}...")
+			print(f"Extracting save @ {hex(bio.tell())}, size {hex(save_size)}...")
+			# grab the save data
+			save_data = bio.read(save_size)
 			# extract it
 			write_file(args.ofile if args.ofile else "output.bin", save_data)
 		elif args.command == "inject":
-			print(f"Injecting save @ {hex(bio.tell() - save_size)}, size {hex(save_size)}...")
-			# seek to the beginning of the save data
-			bio.seek(-save_size, 1)
+			print(f"Injecting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# read the new save data
 			save_data = read_file(args.save)
 			assert len(save_data) == save_size, "Save size mismatch!"
