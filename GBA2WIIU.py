@@ -17,12 +17,22 @@ def write_file(filename: str, data: (bytes, bytearray)) -> None:
 	with open(filename, "wb") as f:
 		f.write(data)
 
+def bswap64(b: (bytes, bytearray)) -> (bytes, bytearray):
+	with BytesIO(b) as bio:
+		for i in range(0, len(b), 8):
+			data = bio.read(8)
+			bio.seek(-8, 1)
+			bio.write(bytes(reversed(data)))
+		return bio.getvalue()
+
 def main() -> None:
 	parser = ArgumentParser(description="A script to migrate saves from GBA to Wii U VC")
 	parser.add_argument("command", type=str, choices=["extract", "inject"], help="The command you want to use")
 	parser.add_argument("ifile", type=FileType("rb"), help="The Wii U VC save file")
 	parser.add_argument("-s", "--save", type=FileType("rb"), help="The save file to inject")
 	parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
+	parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
+	parser.add_argument("--disable-errors", action="store_true", help="Disable sanity checks")
 	args = parser.parse_args()
 
 	# make command lowercase
@@ -66,7 +76,10 @@ def main() -> None:
 			print(f"Injecting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# read the new save data
 			save_data = args.save.read()
-			assert len(save_data) == save_size, "Save size mismatch!"
+			if args.eeprom:
+				save_data = bswap64(save_data)
+			if not args.disable_errors:
+				assert len(save_data) == save_size, "Save size mismatch!"
 			# write the new save data in
 			bio.write(save_data)
 		# get the result
