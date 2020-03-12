@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from io import BytesIO
-from struct import unpack
 from os.path import isfile
+from struct import pack, unpack
 from argparse import ArgumentParser, FileType
 
 BLOCK_SIZE = 0x1000
@@ -25,6 +25,9 @@ def bswap64(b: (bytes, bytearray)) -> (bytes, bytearray):
 			bio.write(bytes(reversed(data)))
 		return bio.getvalue()
 
+def gen_statram_desc(size: int) -> bytes:
+	return pack("<8s30I", SAVE_MAGIC, size, 0, size, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0)
+
 def main() -> None:
 	parser = ArgumentParser(description="A script to migrate saves from GBA to Wii U VC")
 	parser.add_argument("command", type=str, choices=["extract", "inject"], help="The command you want to use")
@@ -32,8 +35,12 @@ def main() -> None:
 	parser.add_argument("-s", "--save", type=FileType("rb"), help="The save file to inject")
 	parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
 	parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
-	parser.add_argument("--disable-errors", action="store_true", help="Disable sanity checks")
+	# parser.add_argument("--disable-errors", action="store_true", help="Disable sanity checks")
+	parser.add_argument("-r", "--resize", action="store_true", help="Attempt to resize the save STATRAM0 block")
 	args = parser.parse_args()
+
+	print(gen_statram_desc(0x10000).hex().upper())
+	exit(0)
 
 	# make command lowercase
 	args.command = args.command.lower()
@@ -49,11 +56,13 @@ def main() -> None:
 		size = bio.tell()
 		bio.seek(0)
 		# iterate through the blocks and find the start magic
+		statram0_desc_idx = 0
 		for i in range(0, size, BLOCK_SIZE):
 			bio.seek(i)
 			# found the block, set it to the start
 			if bio.read(8) == SAVE_MAGIC:
 				bio.seek(i)
+				statram0_desc_idx = i
 				break
 		# find the save size
 		bio.seek(12, 1)
@@ -69,16 +78,24 @@ def main() -> None:
 			# grab the save data
 			save_data = bio.read(save_size)
 			# extract it
-			write_file(args.ofile if args.ofile else "output.bin", save_data)
+			write_file(args.ofile if args.ofile else "output.sav", save_data)
 			# we're done
 			return
 		elif args.command == "inject":
 			print(f"Injecting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# read the new save data
 			save_data = args.save.read()
+			# perform EEPROM byte swap if instructed to
 			if args.eeprom:
 				save_data = bswap64(save_data)
-			if not args.disable_errors:
+			# allow resizing the save data
+			if args.resize:
+				print("Attempting resize...")
+				tmp = bio.tell()
+				bio.seek(statram0_desc_idx)
+				bio.write(gen_statram_desc(len(save_data)))
+				bio.seek(tmp)
+			else:
 				assert len(save_data) == save_size, "Save size mismatch!"
 			# write the new save data in
 			bio.write(save_data)
@@ -88,7 +105,10 @@ def main() -> None:
 	# only save if injecting
 	if args.command == "inject":
 		# write the data to disk
-		write_file(args.ofile if args.ofile else "output.sav", data)
+		write_file(args.ofile if args.ofile else "output.bin", data)
+
+	# we're done here
+	print("Done!")
 
 if __name__ == "__main__":
 	main()
