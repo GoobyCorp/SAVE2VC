@@ -39,9 +39,6 @@ def main() -> None:
 	parser.add_argument("-r", "--resize", action="store_true", help="Attempt to resize the save STATRAM0 block")
 	args = parser.parse_args()
 
-	print(gen_statram_desc(0x10000).hex().upper())
-	exit(0)
-
 	# make command lowercase
 	args.command = args.command.lower()
 
