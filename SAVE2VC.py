@@ -62,13 +62,11 @@ def main() -> None:
 		size = bio.tell()
 		bio.seek(0)
 		# iterate through the blocks and find the start magic
-		statram0_desc_idx = 0
 		for i in range(0, size, BLOCK_SIZE):
 			bio.seek(i)
 			# found the block, set it to the start
 			if bio.read(8) == SAVE_MAGIC:
 				bio.seek(i)
-				statram0_desc_idx = i
 				break
 		# find the save size
 		bio.seek(12, 1)
@@ -100,10 +98,8 @@ def main() -> None:
 			# allow resizing the save data
 			if args.resize:
 				print("Attempting resize...")
-				tmp = bio.tell()
-				bio.seek(statram0_desc_idx)
+				bio.seek(-0x80, 1)
 				bio.write(gen_statram_desc(len(save_data)))
-				bio.seek(tmp)
 			else:
 				assert len(save_data) == save_size, "Save size mismatch!"
 			# null the old data incase it was resized
