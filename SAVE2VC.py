@@ -83,6 +83,9 @@ def main() -> None:
 			print(f"Extracting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# grab the save data
 			save_data = bio.read(save_size)
+			# perform EEPROM byte swap if instructed to
+			if args.eeprom:
+				save_data = bswap64(save_data)
 			# extract it
 			write_file(args.ofile if args.ofile else "output.sav", save_data)
 			# we're done
