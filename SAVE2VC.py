@@ -106,6 +106,10 @@ def main() -> None:
 				bio.seek(tmp)
 			else:
 				assert len(save_data) == save_size, "Save size mismatch!"
+			# null the old data incase it was resized
+			bio.write((b"\x00" * save_size))
+			# seek back to the beginning of the save data
+			bio.seek(-save_size, 1)
 			# write the new save data in
 			bio.write(save_data)
 		# get the result
