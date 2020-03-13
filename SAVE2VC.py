@@ -45,7 +45,7 @@ def main() -> None:
 	parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
 	parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
 	# parser.add_argument("--disable-errors", action="store_true", help="Disable sanity checks")
-	parser.add_argument("-r", "--resize", action="store_true", help="Attempt to resize the save STATRAM0 block")
+	parser.add_argument("-r", "--resize", action="store_true", help="Attempt to resize the STATRAM0 block")
 	args = parser.parse_args()
 
 	# make command lowercase

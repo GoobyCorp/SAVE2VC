@@ -1,10 +1,10 @@
-### GBA2WIIU
+### SAVE2VC
 
 This is a script to migrate saves from GBA to the Wii U virtual console
 
 Usage is as follows:
 ```
-usage: GBA2WIIU.py [-h] [-s SAVE] [-o OFILE] [-e] [-r] {extract,inject} ifile
+usage: SAVE2VC.py [-h] [-s SAVE] [-o OFILE] [-e] [-r] {extract,inject} ifile
 
 A script to migrate saves from GBA to Wii U VC
 
@@ -18,5 +18,5 @@ optional arguments:
   -o OFILE, --ofile OFILE
                         The file to output to
   -e, --eeprom          EEPROM byte swap
-  -r, --resize          Attempt to resize the save STATRAM0 block
+  -r, --resize          Attempt to resize the STATRAM0 block
 ```
