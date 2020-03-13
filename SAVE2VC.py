@@ -17,13 +17,22 @@ def write_file(filename: str, data: (bytes, bytearray)) -> None:
 	with open(filename, "wb") as f:
 		f.write(data)
 
-def bswap64(b: (bytes, bytearray)) -> (bytes, bytearray):
+def bswap(b: (bytes, bytearray), bits: int) -> (bytes, bytearray):
 	with BytesIO(b) as bio:
-		for i in range(0, len(b), 8):
-			data = bio.read(8)
-			bio.seek(-8, 1)
+		for i in range(0, len(b), bits // 8):
+			data = bio.read(bits // 8)
+			bio.seek(-(bits // 8), 1)
 			bio.write(bytes(reversed(data)))
 		return bio.getvalue()
+
+def bswap16(b: (bytes, bytearray)) -> (bytes, bytearray):
+	return bswap(b, 16)
+
+def bswap32(b: (bytes, bytearray)) -> (bytes, bytearray):
+	return bswap(b, 32)
+
+def bswap64(b: (bytes, bytearray)) -> (bytes, bytearray):
+	return bswap(b, 64)
 
 def gen_statram_desc(size: int) -> bytes:
 	return pack("<8s30I", SAVE_MAGIC, size, 0, size, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0, 0, 0, size, 0, 0, 0, 0, 0)
