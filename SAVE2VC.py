@@ -43,16 +43,14 @@ def lowercase(s: str) -> str:
 def main() -> None:
 	parser = ArgumentParser(description="A script to migrate saves from GBA to Wii U VC")
 
-	subparsers = parser.add_subparsers(title="commands", help="Command help", required=True)
+	subparsers = parser.add_subparsers(title="commands", dest="command", help="Command help", required=True)
 
 	extract_parser = subparsers.add_parser("extract", help="Extract a game save from a Wii U VC save")
 	extract_parser.add_argument("ifile", type=FileType("rb"), help="The Wii U VC save file")
-	extract_parser.set_defaults(which="extract")
 
 	inject_parser = subparsers.add_parser("inject", help="Inject a game save into a Wii U VC save")
 	inject_parser.add_argument("sfile", type=FileType("rb"), help="The game save to inject")
 	inject_parser.add_argument("ifile", type=FileType("rb"), help="The Wii U VC save file")
-	inject_parser.set_defaults(which="inject")
 
 	parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
 	parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
@@ -81,7 +79,7 @@ def main() -> None:
 		# seek to after the save descriptor
 		bio.seek(0x80, 1)
 		# perform commands
-		if args.which == "extract":
+		if args.command == "extract":
 			print(f"Extracting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# grab the save data
 			save_data = bio.read(save_size)
@@ -92,7 +90,7 @@ def main() -> None:
 			write_file(args.ofile if args.ofile else "output.sav", save_data)
 			# we're done
 			return
-		elif args.which == "inject":
+		elif args.command == "inject":
 			print(f"Injecting save @ {hex(bio.tell())}, size {hex(save_size)}...")
 			# read the new save data
 			save_data = args.sfile.read()
@@ -116,7 +114,7 @@ def main() -> None:
 		data = bio.getvalue()
 
 	# only save if injecting
-	if args.which == "inject":
+	if args.command == "inject":
 		# write the data to disk
 		write_file(args.ofile if args.ofile else "output.bin", data)
 
