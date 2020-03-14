@@ -13,7 +13,7 @@ python3 SAVE2VC.py extract data_008_0000.bin -o gba.sav
 
 Inject a GBA save into a Wii U virtual console save:
 ```
-python3 SAVE2VC.py inject data_008_0000.bin -s gba.sav -o modified.bin
+python3 SAVE2VC.py inject gba.sav data_008_0000.bin -o modified.bin
 ```
 
 ```
