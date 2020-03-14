@@ -47,14 +47,15 @@ def main() -> None:
 
 	extract_parser = subparsers.add_parser("extract", help="Extract a game save from a Wii U VC save")
 	extract_parser.add_argument("ifile", type=FileType("rb"), help="The Wii U VC save file")
+	extract_parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
+	extract_parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
 
 	inject_parser = subparsers.add_parser("inject", help="Inject a game save into a Wii U VC save")
 	inject_parser.add_argument("sfile", type=FileType("rb"), help="The game save to inject")
 	inject_parser.add_argument("ifile", type=FileType("rb"), help="The Wii U VC save file")
+	inject_parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
+	inject_parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
 	inject_parser.add_argument("-r", "--resize", action="store_true", help="Attempt to resize the STATRAM0 block")
-
-	parser.add_argument("-o", "--ofile", type=str, help="The file to output to")
-	parser.add_argument("-e", "--eeprom", action="store_true", help="EEPROM byte swap")
 	args = parser.parse_args()
 
 	# make a copy of the file in memory so we don't touch the original
