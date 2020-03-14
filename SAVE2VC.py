@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from io import BytesIO
-from os.path import isfile
 from struct import pack, unpack
 from argparse import ArgumentParser, FileType
 
