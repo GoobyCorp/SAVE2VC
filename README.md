@@ -15,7 +15,7 @@ Inject a GBA save into a Wii U virtual console save:
 ```
 python3 SAVE2VC.py inject gba.sav data_008_0000.bin -o modified.bin
 ```
-
+**Main:**
 ```
 usage: SAVE2VC.py [-h] {extract,inject} ...
 
@@ -29,7 +29,7 @@ commands:
     extract         Extract a game save from a Wii U VC save
     inject          Inject a game save into a Wii U VC save
 ```
-Extract:
+**Extract:**
 ```
 usage: SAVE2VC.py extract [-h] [-o OFILE] [-e] ifile
 
@@ -42,7 +42,7 @@ optional arguments:
                         The file to output to
   -e, --eeprom          EEPROM byte swap
 ```
-Inject:
+**Inject:**
 ```
 usage: SAVE2VC.py inject [-h] [-o OFILE] [-e] [-r] sfile ifile
 
